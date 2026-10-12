@@ -27,6 +27,10 @@ SoxrWrapper::SoxrWrapper(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Soxr
   double inputSampleRate = info[0].As<Napi::Number>().DoubleValue();
   double outputSampleRate = info[1].As<Napi::Number>().DoubleValue();
   uint32_t numberOfChannels = info[2].As<Napi::Number>().Uint32Value();
+  if(numberOfChannels < 1) {
+    Napi::RangeError::New(env, "The numberOfChannels argument must be at least 1.").ThrowAsJavaScriptException();
+    return;
+  }
   soxr_error_t error;
   soxr_io_spec_t const ioFormat = soxr_io_spec(SOXR_FLOAT32_I, SOXR_FLOAT32_I);
   soxr_quality_spec_t quality;
