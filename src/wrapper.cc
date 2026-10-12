@@ -89,6 +89,11 @@ Napi::Object SoxrWrapper::init(Napi::Env env, Napi::Object exports) {
 Napi::Value SoxrWrapper::resample(const Napi::CallbackInfo &info) {
   Napi::Env env = info.Env();
 
+  if(this->isDestroyed) {
+    Napi::Error::New(env, "This SoxrWrapper instance has already been destroyed.").ThrowAsJavaScriptException();
+    return env.Undefined();
+  }
+
   if(info.Length() < 1 || !isFloat32Array(env, info[0])) {
     Napi::TypeError::New(env, "The interleavedChannelData parameter should be a Float32Array.").ThrowAsJavaScriptException();
     return env.Undefined();
@@ -137,8 +142,10 @@ Napi::Value SoxrWrapper::resample(const Napi::CallbackInfo &info) {
 }
 
 Napi::Value SoxrWrapper::destroy(const Napi::CallbackInfo &info) {
-  soxr_delete(this->soxrInstance);
-  this->isDestroyed = true;
+  if(!this->isDestroyed) {
+    soxr_delete(this->soxrInstance);
+    this->isDestroyed = true;
+  }
 
   return info.Env().Undefined();
 }
