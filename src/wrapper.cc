@@ -135,10 +135,11 @@ Napi::Value SoxrWrapper::resample(const Napi::CallbackInfo &info) {
   outputVector = std::vector<float>();
 
   if(error) {
-    Napi::Error::New(env, "A native error occurred while resampling the audio data.");
-  } else {
-    return output;
+    Napi::Error::New(env, "A native error occurred while resampling the audio data.").ThrowAsJavaScriptException();
+    return env.Undefined();
   }
+
+  return output;
 }
 
 Napi::Value SoxrWrapper::destroy(const Napi::CallbackInfo &info) {
